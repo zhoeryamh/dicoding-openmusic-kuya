@@ -1,8 +1,8 @@
 const Joi = require('joi');
  
-const AlbumPayloadSchema = Joi.object({
+const AlbumSchema = Joi.object({
   name: Joi.string().required(),
-  year: Joi.number().required(),
+  year: Joi.number().max(new Date().getFullYear()).integer().required(),
 });
 
-module.exports = { AlbumPayloadSchema };
+module.exports = { AlbumSchema };

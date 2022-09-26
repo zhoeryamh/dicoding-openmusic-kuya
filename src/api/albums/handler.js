@@ -4,18 +4,17 @@ class AlbumHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
-    this.postAlbumHandler = this.postAlbumHandler.bind(this);
-    this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
-    this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
-    this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
-    this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
+    this.createAlbum = this.createAlbum.bind(this);
+    this.readAlbum = this.readAlbum.bind(this);
+    this.readAlbumById = this.readAlbumById.bind(this);
+    this.updateAlbum = this.updateAlbum.bind(this);
+    this.deleteAlbum = this.deleteAlbum.bind(this);
   }
 
-  async postAlbumHandler(request, h) {
+  async createAlbum(r, h) {
     try {
-      this._validator.validateAlbumPayload(request.payload);
-      const { name, year } = request.payload;
-      const albumId = await this._service.addAlbum({ name, year });
+      this._validator.validateAlbum(r.payload);
+      const albumId = await this._service.add(r.payload);
 
       const response = h.response({
         status: 'success',
@@ -46,8 +45,8 @@ class AlbumHandler {
     }
   }
 
-  async getAlbumsHandler() {
-    const albums = await this._service.getAlbums();
+  async readAlbum() {
+    const albums = await this._service.get();
     return {
       status: 'success',
       data: {
@@ -56,10 +55,9 @@ class AlbumHandler {
     };
   }
 
-  async getAlbumByIdHandler(request, h) {
+  async readAlbumById(r, h) {
     try {
-      const { id } = request.params;
-      const album = await this._service.getAlbumById(id);
+      const album = await this._service.getById(r.params);
 
       return {
         status: 'success',
@@ -87,11 +85,10 @@ class AlbumHandler {
     }
   }
 
-  async putAlbumByIdHandler(request, h) {
+  async updateAlbum(r, h) {
     try {
-      this._validator.validateAlbumPayload(request.payload);
-      const { id } = request.params;
-      await this._service.editAlbumById(id, request.payload);
+      this._validator.validateAlbum(r.payload);
+      await this._service.editById(r.params, r.payload);
 
       return {
         status: 'success',
@@ -117,10 +114,9 @@ class AlbumHandler {
     }
   }
 
-  async deleteAlbumByIdHandler(request, h) {
+  async deleteAlbum(r, h) {
     try {
-      const { id } = request.params;
-      await this._service.deleteAlbumById(id);
+      await this._service.delete(r.params);
 
       return {
         status: 'success',

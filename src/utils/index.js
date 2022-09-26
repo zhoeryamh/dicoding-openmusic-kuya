@@ -1,4 +1,4 @@
-const mapAlbumToModel = ({ 
+const mapAlbum = ({ 
   id,
   name,
   year,
@@ -12,7 +12,7 @@ const mapAlbumToModel = ({
   updatedAt: updated_at
 })
 
-const mapSongToModel = ({ 
+const mapSong = ({ 
   id,
   title,
   year,
@@ -32,14 +32,4 @@ const mapSongToModel = ({
   updatedAt: updated_at
 })
 
-const mapSongToBrief = ({ 
-  id,
-  title,
-  performer
-}) => ({
-  id,
-  title,
-  performer
-})
-
-module.exports = { mapAlbumToModel, mapSongToModel, mapSongToBrief };
+module.exports = { mapAlbum, mapSong};
