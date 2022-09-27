@@ -57,7 +57,7 @@ class AlbumsService {
     const updatedAt = new Date().toISOString();
 
     const query = {
-      text: 'UPDATE albums SET "name" = $1, "year" = $2, "updated_at" = $3 WHERE id = $4 RETURNING id',
+      text: 'UPDATE albums SET "name" = $1, "year" = $2, "updated_at" = $3 WHERE id = $4',
       values: [payload.name, payload.year, updatedAt, params.id],
     };
 
@@ -68,7 +68,7 @@ class AlbumsService {
 
   async delete(r) {
     const query = {
-      text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
+      text: 'DELETE FROM albums WHERE id = $1',
       values: [r.id],
     };
  
