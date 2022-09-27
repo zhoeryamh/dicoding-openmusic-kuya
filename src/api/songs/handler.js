@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const ClientError = require('../../exceptions/ClientError');
 
 class SongsHandler {
