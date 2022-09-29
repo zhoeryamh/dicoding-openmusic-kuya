@@ -4,15 +4,20 @@ exports.up = pgm => {
       type: 'VARCHAR(32)',
       primaryKey: true,
     },
-    playlist_id: {
+    playlistId: {
       type: 'VARCHAR(32)',
     },
-    song_id: {
+    songId: {
       type: 'VARCHAR(32)',
     },
   });
+
+  pgm.addConstraint('playlist_songs', 'fk_playlist_songs.playlist', 'FOREIGN KEY("playlistId") REFERENCES playlists(id) ON DELETE CASCADE');
+  pgm.addConstraint('playlist_songs', 'fk_playlist_songs.song', 'FOREIGN KEY("songId") REFERENCES songs(id) ON DELETE CASCADE');
 };
 
 exports.down = pgm => {
+  pgm.dropConstraint('playlist_songs', 'fk_playlist_songs.playlist');
+  pgm.dropConstraint('playlist_songs', 'fk_playlist_songs.song');
   pgm.dropTable('playlist_songs');
 };

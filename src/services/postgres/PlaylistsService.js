@@ -5,8 +5,9 @@ const AuthorizationError = require('../../exceptions/AuthorizationError');
 const NotFoundError = require('../../exceptions/NotFoundError');
  
 class PlaylistsService {
-  constructor() {
+  constructor(collabService) {
     this._pool = new Pool();
+    this._collab = collabService;
   }
 
   async add(r, a) {
@@ -43,12 +44,12 @@ class PlaylistsService {
     };
  
     const result = await this._pool.query(query);
-    if (!result.rowCount) throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan');
+    if (!result.rowCount) throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan.');
   }
 
   async verifyPlaylist(r, a) {
     const query = {
-      text: 'SELECT * FROM playlists WHERE id = $1',
+      text: 'SELECT owner FROM playlists WHERE id = $1',
       values: [r.id],
     };
  
@@ -56,11 +57,10 @@ class PlaylistsService {
     if (!result.rowCount) throw new NotFoundError('Playlist tidak ada.');
     
     const playlist = result.rows[0];
-    if (playlist.owner !== a.id) throw new AuthorizationError('Tidak ada Hak Akses.');
+    if (playlist.owner !== a.id) throw new AuthorizationError('Hak Akses tidak ada.');
   }
 
   async addSong(p, b, a) {
-    console.log([p, b, a]);
     await this.verifySong(b);
     await this.verifyPlaylist(p, a);
 
@@ -88,7 +88,7 @@ class PlaylistsService {
     if (!result.rowCount) throw new NotFoundError('Playlist tidak ada.');
     
     const data = {
-      text: 'SELECT songs.id, title, performer FROM playlist_songs JOIN songs ON song_id = songs.id WHERE playlist_id = $1',
+      text: 'SELECT songs.id, title, performer FROM playlist_songs JOIN songs ON "songId" = songs.id WHERE "playlistId" = $1',
       values: [r.id],
     };
 
@@ -102,6 +102,18 @@ class PlaylistsService {
     };
   }
 
+  async deleteSong(p, b, a) {
+    await this.verifySong(b);
+    await this.verifyPlaylist(p, a);
+    const query = {
+      text: 'DELETE FROM playlist_songs WHERE "songId" = $1',
+      values: [b.songId],
+    };
+ 
+    const result = await this._pool.query(query);
+    if (!result.rowCount) throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan.');
+  }
+
   async verifySong(r) {
     const query = {
       text: 'SELECT * FROM songs WHERE id = $1',
@@ -110,6 +122,21 @@ class PlaylistsService {
  
     const result = await this._pool.query(query);
     if (!result.rowCount) throw new NotFoundError('Lagu tidak ada.');
+  }
+
+  async verifyAccess(r, a) {
+    try {
+      await this.verifyPlaylist(r, a);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      try {
+        await this._collab.verify(r, a);
+      } catch {
+        throw error;
+      }
+    }
   }
 }
 

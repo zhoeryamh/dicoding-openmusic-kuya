@@ -9,6 +9,7 @@ const songs = require('./api/songs');
 const playlists = require('./api/playlists');
 const users = require('./api/users');
 const auths = require('./api/auths');
+const collabs = require('./api/collabs');
 
 // Services
 const AlbumsService = require('./services/postgres/AlbumsService');
@@ -16,6 +17,7 @@ const SongsService = require('./services/postgres/SongsService');
 const PlaylistsService = require('./services/postgres/PlaylistsService');
 const UsersService = require('./services/postgres/UsersService');
 const AuthsService = require('./services/postgres/AuthsService');
+const CollabsService = require('./services/postgres/CollabsService');
 
 // Tokenman
 const TokenManager = require('./tokenize/TokenManager');
@@ -26,6 +28,7 @@ const SongsValidator = require('./validator/songs');
 const PlaylistsValidator = require('./validator/playlists');
 const UsersValidator = require('./validator/users');
 const AuthsValidator = require('./validator/auths');
+const CollabsValidator = require('./validator/collabs');
 
 // Exceptions
 const ClientError = require('./exceptions/ClientError');
@@ -41,9 +44,10 @@ const init = async () => {
     },
   });
 
+  const collabsService = new CollabsService();
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
-  const playlistsService = new PlaylistsService();
+  const playlistsService = new PlaylistsService(collabsService);
   const usersService = new UsersService();
   const authsService = new AuthsService();
 
@@ -105,6 +109,14 @@ const init = async () => {
         users: usersService,
         token: TokenManager,
         validator: AuthsValidator,
+      },
+    },
+    {
+      plugin: collabs,
+      options: {
+        collabs: collabsService,
+        playlists: playlistsService,
+        validator: CollabsValidator,
       },
     },
   ]);

@@ -23,7 +23,7 @@ class AuthsHandler {
 
       const response = h.response({
         status: 'success',
-        message: 'Auth berhasil ditambahkan',
+        message: 'Auth berhasil ditambahkan.',
         data: {
           accessToken,
           refreshToken,
@@ -63,7 +63,7 @@ class AuthsHandler {
 
       return {
         status: 'success',
-        message: 'Token berhasil diperbarui',
+        message: 'Token berhasil diperbarui.',
         data: {
           accessToken,
         },
@@ -98,7 +98,7 @@ class AuthsHandler {
  
       return {
         status: 'success',
-        message: 'Token berhasil dihapus',
+        message: 'Token berhasil dihapus.',
       };
     } catch (error) {
       if (error instanceof ClientError) {

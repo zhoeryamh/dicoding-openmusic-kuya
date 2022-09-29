@@ -1,23 +1,25 @@
 const ClientError = require('../../exceptions/ClientError');
 
-class UsersHandler {
-  constructor(service, validator) {
-    this._service = service;
+class CollabsHandler {
+  constructor(collabs, playlists, validator) {
+    this._collabs = collabs;
+    this._playlists = playlists;
     this._validator = validator;
-    this.createUser = this.createUser.bind(this);
-    this.readUserById = this.readUserById.bind(this);
+    this.createCollab = this.createCollab.bind(this);
+    this.deleteCollab = this.deleteCollab.bind(this);
   }
 
-  async createUser(r, h) {
+  async createCollab(r, h) {
     try {
-      this._validator.validateUser(r.payload);
-      const userId = await this._service.add(r.payload);
+      this._validator.validateCollab(r.payload);
+      await this._playlists.verifyAccess({id: r.payload.playlistId}, r.auth.credentials);
+      const collaborationId = await this._collabs.add(r.payload, r.auth.credentials);
 
       const response = h.response({
         status: 'success',
-        message: 'User berhasil ditambahkan.',
+        message: 'Kolaborasi berhasil ditambahkan.',
         data: {
-          userId,
+          collaborationId,
         },
       });
       response.code(201);
@@ -42,15 +44,16 @@ class UsersHandler {
     }
   }
 
-  async readUserById(r, h) {
+  async deleteCollab(r, h) {
     try {
-      const user = await this._service.getById(r.params);
+      this._validator.validateCollab(r.payload);
+      this._playlists.verifyAccess(r.payload);
+
+      await this._collabs.delete(r.payload, r.auth.credentials);
 
       return {
         status: 'success',
-        data: {
-          user,
-        },
+        message: 'Kolaborasi berhasil dihapus.',
       };
     } catch (error) {
       if (error instanceof ClientError) {
@@ -73,4 +76,4 @@ class UsersHandler {
   }
 }
 
-module.exports = UsersHandler;
+module.exports = CollabsHandler;

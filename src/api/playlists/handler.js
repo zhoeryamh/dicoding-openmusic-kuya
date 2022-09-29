@@ -9,6 +9,7 @@ class PlaylistsHandler {
     this.deletePlaylistById = this.deletePlaylistById.bind(this);
     this.insertSong = this.insertSong.bind(this);
     this.readSong = this.readSong.bind(this);
+    this.deleteSongById = this.deleteSongById.bind(this);
   }
 
   async createPlaylist(r, h) {
@@ -18,7 +19,7 @@ class PlaylistsHandler {
 
       const response = h.response({
         status: 'success',
-        message: 'Playlist berhasil ditambahkan',
+        message: 'Playlist berhasil ditambahkan.',
         data: {
           playlistId,
         },
@@ -61,7 +62,7 @@ class PlaylistsHandler {
 
       return {
         status: 'success',
-        message: 'Playlist berhasil dihapus',
+        message: 'Playlist berhasil dihapus.',
       };
     } catch (error) {
       if (error instanceof ClientError) {
@@ -85,12 +86,12 @@ class PlaylistsHandler {
 
   async insertSong(r, h) {
     try {
-      this._validator.validateInsert(r.payload);
+      this._validator.validateSong(r.payload);
       await this._service.addSong(r.params, r.payload, r.auth.credentials);
 
       const response = h.response({
         status: 'success',
-        message: 'Lagu berhasil ditambahkan',
+        message: 'Lagu berhasil ditambahkan.',
       });
       response.code(201);
       return response;
@@ -122,6 +123,35 @@ class PlaylistsHandler {
         playlist,
       },
     };
+  }
+
+  async deleteSongById(r, h) {
+    try {
+      this._validator.validateSong(r.payload);
+      await this._service.deleteSong(r.params, r.payload, r.auth.credentials);
+
+      return {
+        status: 'success',
+        message: 'Lagu berhasil dihapus.',
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message,
+        });
+        response.code(error.statusCode);
+        return response;
+      }
+      
+      const response = h.response({
+        status: 'error',
+        message: 'Kegagalan dari Server.',
+      });
+      response.code(500);
+      console.error(error);
+      return response;
+    }
   }
 }
 

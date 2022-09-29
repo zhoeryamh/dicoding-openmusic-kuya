@@ -20,7 +20,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows[0].id)  throw new InvariantError('Album gagal ditambahkan');
+    if (!result.rows[0].id)  throw new InvariantError('Album gagal ditambahkan.');
     return result.rows[0].id;
   }
 
@@ -43,7 +43,7 @@ class AlbumsService {
     const albums = await this._pool.query(getAlbum);
     const songs = await this._pool.query(getSong);
 
-    if (!albums.rowCount) throw new NotFoundError('Album tidak ditemukan');
+    if (!albums.rowCount) throw new NotFoundError('Album tidak ditemukan.');
 
     return {
       id: albums.rows[0].id,
@@ -63,7 +63,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount)  throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
+    if (!result.rowCount)  throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan.');
   }
 
   async delete(r) {
@@ -74,7 +74,7 @@ class AlbumsService {
  
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
+    if (!result.rowCount) throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan.');
   }
 }
 
