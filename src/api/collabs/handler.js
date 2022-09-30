@@ -46,8 +46,8 @@ class CollabsHandler {
 
   async deleteCollab(r, h) {
     try {
-      this._validator.validateCollab(r.payload);
-      this._playlists.verifyAccess(r.payload);
+      await this._validator.validateCollab(r.payload);
+      await this._playlists.verifyPlaylist({id: r.payload.playlistId}, r.auth.credentials);
 
       await this._collabs.delete(r.payload, r.auth.credentials);
 

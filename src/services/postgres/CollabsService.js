@@ -38,7 +38,7 @@ class CollabsService {
       };
       
       const result = await this._pool.query(query);
-      if (!result.rowCount) throw new AuthorizationError('Hak Akses tidak ada.');
+      if (!result.rowCount) throw new AuthorizationError('Hak Akses kolaborasi tidak ada.');
     }
   
     async delete(r) {

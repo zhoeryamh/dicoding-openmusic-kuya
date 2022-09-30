@@ -26,7 +26,7 @@ class PlaylistsService {
 
   async get(a) {
     const query = {
-      text: 'SELECT playlists.id, name, username FROM playlists JOIN users ON owner = users.id WHERE owner = $1',
+      text: 'SELECT playlists.id, name, username FROM playlists JOIN users ON users.id = owner LEFT JOIN collaborations ON "playlistId" = playlists.id WHERE owner = $1 OR "userId" = $1',
       values: [a.id],
     };
 
@@ -57,12 +57,12 @@ class PlaylistsService {
     if (!result.rowCount) throw new NotFoundError('Playlist tidak ada.');
     
     const playlist = result.rows[0];
-    if (playlist.owner !== a.id) throw new AuthorizationError('Hak Akses tidak ada.');
+    if (playlist.owner !== a.id) throw new AuthorizationError('Hak Akses playlist tidak ada.');
   }
 
   async addSong(p, b, a) {
     await this.verifySong(b);
-    await this.verifyPlaylist(p, a);
+    await this.verifyAccess(p, a);
 
     const id = `insert-${nanoid(16)}`;
     
@@ -76,9 +76,7 @@ class PlaylistsService {
     if (!result.rowCount) throw new InvariantError('Lagu gagal ditambahkan.'); 
   }
 
-  async getSong(r, a) {
-    await this.verifyPlaylist(r, a);
-
+  async getSong(r) {
     const query = {
       text: 'SELECT playlists.id, name, username FROM playlists JOIN users ON owner = users.id WHERE playlists.id = $1',
       values: [r.id],
@@ -104,7 +102,7 @@ class PlaylistsService {
 
   async deleteSong(p, b, a) {
     await this.verifySong(b);
-    await this.verifyPlaylist(p, a);
+    await this.verifyAccess(p, a);
     const query = {
       text: 'DELETE FROM playlist_songs WHERE "songId" = $1',
       values: [b.songId],
@@ -132,7 +130,7 @@ class PlaylistsService {
         throw error;
       }
       try {
-        await this._collab.verify(r, a);
+        await this._collab.verify({playlistId: r.id, userId: a.id});
       } catch {
         throw error;
       }

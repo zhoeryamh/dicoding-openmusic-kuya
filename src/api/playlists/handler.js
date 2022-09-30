@@ -116,7 +116,7 @@ class PlaylistsHandler {
   }
 
   async readSong(r) {
-    const playlist = await this._service.getSong(r.params, r.auth.credentials);
+    const playlist = await this._service.getSong(r.params);
     return {
       status: 'success',
       data: {
