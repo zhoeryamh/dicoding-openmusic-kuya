@@ -6,18 +6,23 @@ exports.up = pgm => {
     },
     playlistId: {
       type: 'VARCHAR(32)',
+      notNull: true,
     },
     songId: {
       type: 'VARCHAR(32)',
+      notNull: true,
     },
     userId: {
       type: 'VARCHAR(32)',
+      notNull: true,
     },
     action: {
       type: 'VARCHAR(32)',
+      notNull: true,
     },
     time: {
       type: 'TEXT',
+      notNull: true,
     },
   });
   
