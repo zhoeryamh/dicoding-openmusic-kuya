@@ -5,9 +5,10 @@ const AuthorizationError = require('../../exceptions/AuthorizationError');
 const NotFoundError = require('../../exceptions/NotFoundError');
  
 class PlaylistsService {
-  constructor(collabService) {
+  constructor(collabService, logService) {
     this._pool = new Pool();
     this._collab = collabService;
+    this._log = logService;
   }
 
   async add(r, a) {
@@ -31,7 +32,6 @@ class PlaylistsService {
     };
 
     const result = await this._pool.query(query);
-    if (!result.rowCount) throw new NotFoundError('Playlist tidak ada.'); 
 
     return result.rows;
   }
@@ -65,18 +65,21 @@ class PlaylistsService {
     await this.verifyAccess(p, a);
 
     const id = `insert-${nanoid(16)}`;
-    
+    const time = new Date().toISOString();
+
     const query = {
       text: 'INSERT INTO playlist_songs VALUES($1, $2, $3)',
       values: [id, p.id, b.songId],
     };
 
     const result = await this._pool.query(query);
-
     if (!result.rowCount) throw new InvariantError('Lagu gagal ditambahkan.'); 
+
+    await this._log.add({playlistId: p.id, songId: b.songId, userId: a.id, action: 'add', time: time});
   }
 
-  async getSong(r) {
+  async getSong(r, a) {
+    await this.verifyAccess(r, a);
     const query = {
       text: 'SELECT playlists.id, name, username FROM playlists JOIN users ON owner = users.id WHERE playlists.id = $1',
       values: [r.id],
@@ -103,6 +106,9 @@ class PlaylistsService {
   async deleteSong(p, b, a) {
     await this.verifySong(b);
     await this.verifyAccess(p, a);
+
+    const time = new Date().toISOString();
+    
     const query = {
       text: 'DELETE FROM playlist_songs WHERE "songId" = $1',
       values: [b.songId],
@@ -110,6 +116,8 @@ class PlaylistsService {
  
     const result = await this._pool.query(query);
     if (!result.rowCount) throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan.');
+
+    await this._log.add({playlistId: p.id, songId: b.songId, userId: a.id, action: 'delete', time: time});
   }
 
   async verifySong(r) {

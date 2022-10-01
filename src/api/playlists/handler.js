@@ -1,14 +1,16 @@
 const ClientError = require('../../exceptions/ClientError');
 
 class PlaylistsHandler {
-  constructor(service, validator) {
+  constructor(service, log, validator) {
     this._service = service;
+    this._log = log;
     this._validator = validator;
     this.createPlaylist = this.createPlaylist.bind(this);
     this.readPlaylist = this.readPlaylist.bind(this);
     this.deletePlaylistById = this.deletePlaylistById.bind(this);
     this.insertSong = this.insertSong.bind(this);
     this.readSong = this.readSong.bind(this);
+    this.readLog = this.readLog.bind(this);
     this.deleteSongById = this.deleteSongById.bind(this);
   }
 
@@ -116,7 +118,7 @@ class PlaylistsHandler {
   }
 
   async readSong(r) {
-    const playlist = await this._service.getSong(r.params);
+    const playlist = await this._service.getSong(r.params, r.auth.credentials);
     return {
       status: 'success',
       data: {
@@ -152,6 +154,19 @@ class PlaylistsHandler {
       console.error(error);
       return response;
     }
+  }
+
+  async readLog(r) {
+    await this._service.verifyAccess(r.params, r.auth.credentials);
+
+    const activities = await this._log.get(r.params);
+    return {
+      status: 'success',
+      data: {
+        playlistId: r.params.id,
+        activities,
+      },
+    };
   }
 }
 

@@ -10,6 +10,7 @@ const playlists = require('./api/playlists');
 const users = require('./api/users');
 const auths = require('./api/auths');
 const collabs = require('./api/collabs');
+const logs = require('./api/logs');
 
 // Services
 const AlbumsService = require('./services/postgres/AlbumsService');
@@ -18,6 +19,7 @@ const PlaylistsService = require('./services/postgres/PlaylistsService');
 const UsersService = require('./services/postgres/UsersService');
 const AuthsService = require('./services/postgres/AuthsService');
 const CollabsService = require('./services/postgres/CollabsService');
+const LogsService = require('./services/postgres/LogsService');
 
 // Tokenman
 const TokenManager = require('./tokenize/TokenManager');
@@ -29,6 +31,7 @@ const PlaylistsValidator = require('./validator/playlists');
 const UsersValidator = require('./validator/users');
 const AuthsValidator = require('./validator/auths');
 const CollabsValidator = require('./validator/collabs');
+const LogsValidator = require('./validator/logs');
 
 // Exceptions
 const ClientError = require('./exceptions/ClientError');
@@ -44,10 +47,11 @@ const init = async () => {
     },
   });
 
+  const logsService = new LogsService();
   const collabsService = new CollabsService();
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
-  const playlistsService = new PlaylistsService(collabsService);
+  const playlistsService = new PlaylistsService(collabsService, logsService);
   const usersService = new UsersService();
   const authsService = new AuthsService();
 
@@ -99,6 +103,7 @@ const init = async () => {
       plugin: playlists,
       options: {
         service: playlistsService,
+        log: logsService,
         validator: PlaylistsValidator,
       },
     },
@@ -117,6 +122,13 @@ const init = async () => {
         collabs: collabsService,
         playlists: playlistsService,
         validator: CollabsValidator,
+      },
+    },
+    {
+      plugin: logs,
+      options: {
+        service: logsService,
+        validator: LogsValidator,
       },
     },
   ]);
