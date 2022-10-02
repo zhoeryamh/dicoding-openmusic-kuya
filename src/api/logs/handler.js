@@ -5,7 +5,6 @@ class AuthsHandler {
     this._service = service;
     this._validator = validator;
     this.createLog = this.createLog.bind(this);
-    this.readLog = this.readLog.bind(this);
   }
 
   async createLog(r, h) {
@@ -41,10 +40,6 @@ class AuthsHandler {
       console.error(error);
       return response;
     }
-  }
-
-  async readLog() {
-    
   }
 }
 
