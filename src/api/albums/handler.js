@@ -1,14 +1,12 @@
+const autoBind = require('auto-bind');
+const { config } = require('../../utils/index.js');
 class AlbumHandler {
   constructor(album, storage, validator) {
     this._album = album;
     this._storage = storage;
     this._validator = validator;
-    this.createAlbum = this.createAlbum.bind(this);
-    this.readAlbum = this.readAlbum.bind(this);
-    this.readAlbumById = this.readAlbumById.bind(this);
-    this.updateAlbum = this.updateAlbum.bind(this);
-    this.deleteAlbum = this.deleteAlbum.bind(this);
-    this.uploadAlbumCover = this.uploadAlbumCover.bind(this);
+    
+    autoBind(this);
   }
 
   async createAlbum(r, h) {
@@ -54,7 +52,7 @@ class AlbumHandler {
 
     return {
       status: 'success',
-      message: 'Album berhasil diperbarui',
+      message: 'Album berhasil diperbarui.',
     };
   }
 
@@ -72,14 +70,41 @@ class AlbumHandler {
     this._validator.validateAlbumCover(cover.hapi.headers);
 
     const filename = await this._storage.writeFile(cover, cover.hapi);
-    const url = `http://${process.env.HOST}:${process.env.PORT}/upload/covers/${filename}`;
+    const url = `http://${config.app.host}:${config.app.port}/upload/covers/${filename}`;
     await this._album.editCoverById(r.params, {url});
 
     const response = h.response({
       status: 'success',
-      message: 'Sampul berhasil diunggah',
+      message: 'Sampul berhasil diunggah.',
     });
     response.code(201);
+    return response;
+  }
+
+  async addAlbumLike(r, h) {
+    await this._album.getById(r.params);
+    await this._album.addLikeById(r.params, r.auth.credentials);
+
+    const response = h.response({
+      status: 'success',
+      message: 'Permintaan berhasil dilakukan.',
+    });
+    response.code(201);
+    return response;
+  }
+
+  async getAlbumLikesById(r, h) {
+    const { cache, likes } = await this._album.getLikesById(r.params);
+
+    const response = h.response({
+      status: 'success',
+      data: {
+        likes,
+      },
+    });
+
+    if (cache) response.header('X-Data-Source', 'cache');
+
     return response;
   }
 }

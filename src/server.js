@@ -14,6 +14,7 @@ const auths = require('./api/auths');
 const collabs = require('./api/collabs');
 const logs = require('./api/logs');
 const _exports = require('./api/exports');
+const { config } = require('./utils/index.js');
 
 // Services
 const AlbumsService = require('./services/postgres/AlbumsService');
@@ -25,6 +26,7 @@ const CollabsService = require('./services/postgres/CollabsService');
 const LogsService = require('./services/postgres/LogsService');
 const ProducerService = require('./services/rabbitmq/ProducerService');
 const StorageService = require('./services/storage/StorageService');
+const CacheService = require('./services/redis/CacheService.js');
 
 // Tokenman
 const TokenManager = require('./tokenize/TokenManager');
@@ -44,8 +46,8 @@ const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.app.port,
+    host: config.app.host,
     routes: {
       cors: {
         origin: ['*'],
@@ -53,9 +55,10 @@ const init = async () => {
     },
   });
 
+  const cacheService = new CacheService();
   const logsService = new LogsService();
   const collabsService = new CollabsService();
-  const albumsService = new AlbumsService();
+  const albumsService = new AlbumsService(cacheService);
   const songsService = new SongsService();
   const playlistsService = new PlaylistsService(collabsService, logsService);
   const usersService = new UsersService();
@@ -72,12 +75,12 @@ const init = async () => {
   ]);
 
   server.auth.strategy('openmusic_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.token.key,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.token.age,
     },
     validate: (artifacts) => ({
       isValid: true,

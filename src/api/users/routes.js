@@ -2,12 +2,12 @@ const routes = (handler) => [
   {
     method: 'POST',
     path: '/users',
-    handler: handler.createUser,
+    handler: (r, h) => handler.createUser(r, h),
   },
   {
     method: 'GET',
     path: '/users/{id}',
-    handler: handler.readUserById,
+    handler: (r) => handler.readUserById(r),
   },
 ];
 

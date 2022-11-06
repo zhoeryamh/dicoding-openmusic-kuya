@@ -12,7 +12,7 @@ class AuthsService {
       values: [token],
     };
 
-    const result = await this._pool.query(query);
+    await this._pool.query(query);
   }
 
   async verify(token) {
@@ -31,7 +31,7 @@ class AuthsService {
       values: [token],
     };
  
-    const result = await this._pool.query(query);
+    await this._pool.query(query);
   }
 }
 

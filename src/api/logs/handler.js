@@ -1,8 +1,10 @@
-class AuthsHandler {
+const autoBind = require('auto-bind');
+class LogsHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
-    this.createLog = this.createLog.bind(this);
+    
+    autoBind(this);
   }
 
   async createLog(r, h) {
@@ -22,4 +24,4 @@ class AuthsHandler {
   }
 }
 
-module.exports = AuthsHandler;
+module.exports = LogsHandler;

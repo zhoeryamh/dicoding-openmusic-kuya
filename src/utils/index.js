@@ -32,4 +32,25 @@ const mapSong = ({
   updatedAt: updated_at
 })
 
-module.exports = { mapAlbum, mapSong};
+const config = {
+  app: {
+    host: process.env.HOST,
+    port: process.env.PORT,
+  },
+  token: {
+    key: process.env.ACCESS_TOKEN_KEY,
+    age: process.env.ACCESS_TOKEN_AGE,
+    refresh: process.env.REFRESH_TOKEN_KEY,
+  },
+  s3: {
+    bucketName: process.env.AWS_BUCKET_NAME,
+  },
+  rabbitMq: {
+    server: process.env.RABBITMQ_SERVER,
+  },
+  redis: {
+    host: process.env.REDIS_SERVER,
+  },
+}
+
+module.exports = { mapAlbum, mapSong, config };

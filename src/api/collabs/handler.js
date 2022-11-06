@@ -1,10 +1,11 @@
+const autoBind = require('auto-bind');
 class CollabsHandler {
   constructor(collabs, playlists, validator) {
     this._collabs = collabs;
     this._playlists = playlists;
     this._validator = validator;
-    this.createCollab = this.createCollab.bind(this);
-    this.deleteCollab = this.deleteCollab.bind(this);
+    
+    autoBind(this);
   }
 
   async createCollab(r, h) {

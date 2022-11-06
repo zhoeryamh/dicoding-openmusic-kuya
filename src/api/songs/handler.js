@@ -1,12 +1,10 @@
+const autoBind = require('auto-bind');
 class SongsHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
-    this.createSong = this.createSong.bind(this);
-    this.readSong = this.readSong.bind(this);
-    this.readSongById = this.readSongById.bind(this);
-    this.updateSongById = this.updateSongById.bind(this);
-    this.deleteSongById = this.deleteSongById.bind(this);
+    
+    autoBind(this);
   }
 
   async createSong(r, h) {

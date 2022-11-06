@@ -4,32 +4,32 @@ const routes = (handler) => [
   {
     method: 'POST',
     path: '/albums',
-    handler: handler.createAlbum,
+    handler: (r, h) => handler.createAlbum(r, h),
   },
   {
     method: 'GET',
     path: '/albums',
-    handler: handler.readAlbum,
+    handler: () => handler.readAlbum(),
   },
   {
     method: 'GET',
     path: '/albums/{id}',
-    handler: handler.readAlbumById,
+    handler: (r) => handler.readAlbumById(r),
   },
   {
     method: 'PUT',
     path: '/albums/{id}',
-    handler: handler.updateAlbum,
+    handler: (r) => handler.updateAlbum(r),
   },
   {
     method: 'DELETE',
     path: '/albums/{id}',
-    handler: handler.deleteAlbum,
+    handler: (r) => handler.deleteAlbum(r),
   },
   {
     method: 'POST',
     path: '/albums/{id}/covers',
-    handler: handler.uploadAlbumCover,
+    handler: (r, h) => handler.uploadAlbumCover(r, h),
     options: {
       payload: {
         allow: 'multipart/form-data',
@@ -47,6 +47,19 @@ const routes = (handler) => [
         path: path.resolve(__dirname, 'covers'),
       },
     },
+  },
+  {
+    method: 'POST',
+    path: '/albums/{id}/likes',
+    handler: (r, h) => handler.addAlbumLike(r, h),
+    options: {
+      auth: 'openmusic_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/albums/{id}/likes',
+    handler: (r, h) => handler.getAlbumLikesById(r, h),
   },
 ];
 

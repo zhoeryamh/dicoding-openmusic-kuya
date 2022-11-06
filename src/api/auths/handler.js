@@ -1,12 +1,12 @@
+const autoBind = require('auto-bind');
 class AuthsHandler {
   constructor(auths, users, token, validator) {
     this._auths = auths;
     this._users = users;
     this._token = token;
     this._validator = validator;
-    this.createAuth = this.createAuth.bind(this);
-    this.updateAuth = this.updateAuth.bind(this);
-    this.deleteAuth = this.deleteAuth.bind(this);
+    
+    autoBind(this);
   }
 
   async createAuth(r, h) {
