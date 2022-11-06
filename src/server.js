@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
+const path = require('path');
 
 // Plugins
 const albums = require('./api/albums');
@@ -22,6 +24,7 @@ const AuthsService = require('./services/postgres/AuthsService');
 const CollabsService = require('./services/postgres/CollabsService');
 const LogsService = require('./services/postgres/LogsService');
 const ProducerService = require('./services/rabbitmq/ProducerService');
+const StorageService = require('./services/storage/StorageService');
 
 // Tokenman
 const TokenManager = require('./tokenize/TokenManager');
@@ -57,10 +60,14 @@ const init = async () => {
   const playlistsService = new PlaylistsService(collabsService, logsService);
   const usersService = new UsersService();
   const authsService = new AuthsService();
+  const storageService = new StorageService(path.resolve(__dirname, 'api/albums/covers'));
 
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ]);
 
@@ -84,7 +91,8 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumsService,
+        album: albumsService,
+        storage: storageService,
         validator: AlbumsValidator,
       },
     },
